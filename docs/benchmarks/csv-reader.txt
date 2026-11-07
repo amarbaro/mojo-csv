@@ -1,0 +1,94 @@
+CSV reader measurement receipt, CPU 7, 49999950 bytes, 714285 mixed records.
+Mojo 1.2.0 (2016d0cd), CPython 3.14.9. ab-step/bench-ab: 3 interleaved rounds.
+All result arms assert record count and decoded sample fields; full correctness is gated separately.
+Each A/B driver ran inside scripts/cap.sh taskset -c 7, TMPDIR on disk.
+Pinned ordinary-run scanner versus checked scalar reader:
+rows identical across 6 runs: 714285
+metric (median of 3)                                A              B       B/A
+parse MB/s: #                                 26.7136        59.9632    2.245x
+parse seconds: #                               1.8717       0.833845    0.446x
+
+--- commit block (ordinary-runs-pinned) ---
+input: bench , bench-ab 3 interleaved rounds
+parse MB/s: #: before 26.7136 / after 59.9632 (2.245x)
+parse seconds: #: before 1.8717 / after 0.833845 (0.446x)
+rows identical across 6 runs: 714285
+tests pass: sha256sum -c .work/verified-runs.sha256
+arms: A .work/bench-correct | B .work/arms/B-ordinary-runs-pinned-20261107T002619
+Pinned direct field copies versus ordinary-run scanner:
+rows identical across 6 runs: 714285
+metric (median of 3)                                A              B       B/A
+parse MB/s: #                                 43.1286        49.4458    1.146x
+parse seconds: #                              1.15932        1.01121    0.872x
+
+--- commit block (direct-owned) ---
+input: bench , bench-ab 3 interleaved rounds
+parse MB/s: #: before 43.1286 / after 49.4458 (1.146x)
+parse seconds: #: before 1.15932 / after 1.01121 (0.872x)
+rows identical across 6 runs: 714285
+tests pass: scripts/cap.sh "$MOJO" build -I src tests/cases.mojo -o .work/cases && CASES=.work/cases scripts/check.sh
+arms: A .work/bench-runs | B .work/arms/B-direct-owned-20261107T002702
+Pinned SIMD first-lane reduction, reverted after regression:
+rows identical across 6 runs: 714285
+metric (median of 3)                                A              B       B/A
+parse MB/s: #                                 50.6608        46.5697    0.919x
+parse seconds: #                             0.986956        1.07366    1.088x
+
+--- commit block (vector-first) ---
+input: bench , bench-ab 3 interleaved rounds
+parse MB/s: #: before 50.6608 / after 46.5697 (0.919x)
+parse seconds: #: before 0.986956 / after 1.07366 (1.088x)
+rows identical across 6 runs: 714285
+tests pass: scripts/cap.sh "$MOJO" build -I src tests/cases.mojo -o .work/cases && CASES=.work/cases scripts/check.sh
+arms: A .work/bench-direct | B .work/arms/B-vector-first-20261107T002832
+Pinned direct field copies versus CPython reader (A Mojo, B CPython):
+rows identical across 6 runs: 714285
+metric (median of 3)                                A              B       B/A
+parse MB/s: #                                 49.6872        61.2108    1.232x
+parse seconds: #                              1.00629       0.816848    0.812x
+External wall / peak RSS, checked scalar reader:
+Mojo bytes 49999950 rows 714285 seconds 1.730740966 MB/s 28.88933178461554
+rows: 714285
+parse seconds: 1.730740966
+parse MB/s: 28.88933178461554
+sizes Dialect 40 Reader 88 CsvField 56
+wall seconds: 1.91
+peak KB: 511388
+External wall / peak RSS, ordinary-run scanner:
+Mojo bytes 49999950 rows 714285 seconds 0.792607844 MB/s 63.08283519838595
+rows: 714285
+parse seconds: 0.792607844
+parse MB/s: 63.08283519838595
+sizes Dialect 40 Reader 88 CsvField 56
+wall seconds: 0.97
+peak KB: 624116
+External wall / peak RSS, final direct field copies:
+Mojo bytes 49999950 rows 714285 seconds 0.898426405 MB/s 55.652805529463485
+rows: 714285
+parse seconds: 0.898426405
+parse MB/s: 55.652805529463485
+sizes Dialect 40 Reader 88 CsvField 56
+wall seconds: 1.10
+peak KB: 449140
+External wall / peak RSS, CPython reference:
+CPython bytes 49999950 rows 714285 seconds 0.817582 MB/s 61.156
+rows: 714285
+parse seconds: 0.817581711
+parse MB/s: 61.155905675
+wall seconds: 1.24
+peak KB: 562728
+Old implementation on the same input, before correctness fixes:
+stack trace was not collected. Enable stack trace collection with environment variable `MODULAR_DEBUG=stack-trace-on-error`
+Unhandled exception caught during execution: new-line character seen in unquoted field - do you need to open the file with newline=''?
+Command exited with non-zero status 1
+0.04 s 60756 KB
+Source physical LOC:
+  397 .work/before-src/csv/__init__.mojo
+  319 .work/correct.mojo
+  364 src/csv/__init__.mojo
+ 1080 total
+CPU:
+CPU(s):                                  16
+Model name:                              AMD Ryzen 7 7800X3D 8-Core Processor
+Load at receipt assembly:
+13.39 12.70 11.13 5/2281 4105857

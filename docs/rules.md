@@ -1,0 +1,31 @@
+# Verification rules
+
+- Placeholder goldens and PASS prints hid broken parsing: compare CPython-produced field bytes, null flags, writer bytes and errors in the actual gate.
+- A smoke case and repeated mutants hid missing branches: compile each distinct behavior mutant, then require the real golden runner to reject it.
+- Constant benchmark output claimed unmeasured throughput: benchmark actual work, assert its result, and report wall time plus peak RSS.
+- Broad file searches and combined reads produced truncated output: bound each source query and request only task-relevant ranges.
+- Guessed `std.io.open` import failed: file opening is a prelude builtin on this toolchain; copy imports from a compiled example.
+- Split-view literal comparison failed: materialize `String(view)` for literal comparison when the view carries a different origin.
+- Random case 279 found strict EOF after an escaped newline accepted: preserve AFTER_ESCAPED_CRNL while falling through IN_FIELD; only explicit transitions change it.
+- Adding iterator vectors shadowed the generator output list: reserve distinct names for accumulators and case inputs; regenerate before committing vectors.
+- `ab-step --help` is unsupported: read a local tool's usage header before choosing its flags.
+- The first ab-step race inherited no CPU pin or memory scope: run the complete A/B driver under cap.sh and taskset; do not treat those exploratory numbers as the final receipt.
+- A typed LOC estimate was wrong: derive before/after counts with wc or mojo-loc and retain the command output beside the commit.
+- SIMD first-lane reduction regressed median throughput 50.66 to 46.57 MB/s: revert the arm; a vector operation is not automatically faster than a short scalar tail.
+- Span fields carry distinct nested origins: return row views with an explicit enclosing-reader origin cast, and verify that a live row blocks the next mutation.
+- Defining __len__ alone does not enable len(): conform the row view to Sized.
+- Upstream source paths are case sensitive: discover the repository tree after a 404 rather than guessing another path.
+- A held row compiled despite an origin annotation: do not claim compiler-enforced row invalidation. Document next()/reset() invalidation and test owning copies across advancement.
+- An intended input-lifetime probe used an Array literal and failed on clear(), not borrowing: spell List explicitly and inspect the exact negative diagnostic.
+- Named numeric token validation allocated a temporary String per field: compare packed ASCII inf/nan/infinity tokens without heap allocation.
+- Brain commit rejected a ledger without frontmatter and flooded context with vault INFO: include ledger schema first and capture hook logs before filtering errors.
+- A quoted-field view (no scratch copy) passed the unit gate but broke `"a"b` with doublequote off: the SIMD fast path grew `field_len` without the contiguity check `_add_char` makes. Any path that extends a field must check for skipped bytes first; the golden vector `no-double` caught it, so keep such rows.
+- That view then measured +0.9% stream and 0% owned: revert changes under the 5% bar and keep the attempt in the commit body and design.md.
+- `Dialect(escapechar=92)` silently disabled escaping because `has_escape` defaulted to False: when one argument implies another, infer it or reject it, and write the failing test first.
+- Mutant `t[13] = 0` survived because the default terminator already contains CR: pin each hard-coded special byte with a dialect whose terminator lacks it.
+- A guess that CPython float() strips `\x1c`-`\x1f` was wrong (it raises): probe the reference before filing a bug; the wide differential agreed with the existing code.
+- A commit body claimed test files had no `main()`; they had. Grep a claim before it enters history.
+- Scratch differential scripts found nothing but were not committed: verifiers are committed, so they are now `tools/oracle_fuzz.py`, `tools/oracle_write_fuzz.py` with a rejected-corruption self-test.
+- `nightly.sh` carried a `$HOME` toolchain path and `benchmark.sh` a local tool: committed scripts take the toolchain from `MOJO` and use only coreutils, taskset and python.
+
+- A commit body and release draft said 1.35M reader fuzz cases; the runs summed to 840k (60k + 4x150k + 3x60k, then the 4x150k and 3x60k files were reused). Add counts from the run list, never from memory; amend before it is published.

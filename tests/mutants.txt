@@ -1,0 +1,16 @@
+src/csv/__init__.mojo|if c == 10 or c == 13:|if c == 10 and c == 13:
+src/csv/__init__.mojo|self.unquoted = False|self.unquoted = True
+src/csv/__init__.mojo|comptime FIELD_LIMIT = 131072|comptime FIELD_LIMIT = 131071
+src/csv/__init__.mojo|q == QUOTE_NOTNULL or q == QUOTE_STRINGS|q == QUOTE_NOTNULL and q == QUOTE_STRINGS
+src/csv/__init__.mojo|self.state = _QUOTE_IN_QUOTED_FIELD if self.dialect.doublequote else _IN_FIELD|self.state = _IN_FIELD
+src/csv/__init__.mojo|if c == 13:|if c == 12:
+src/csv/__init__.mojo|output.append(dialect.delimiter)|output.append(dialect.quotechar)
+src/csv/__init__.mojo|output.append(c)|output.append(c ^ 1)
+src/csv/__init__.mojo|if index > 0:|if index > 1:
+src/csv/__init__.mojo|elif not self.dialect.strict:|elif self.dialect.strict:
+src/csv/__init__.mojo|if i == 2 and not self.has_escape:|if i == 2:
+src/csv/__init__.mojo|return digits > 0 and (not exponent or exponent_digits > 0)|return digits > 1 and (not exponent or exponent_digits > 0)
+src/csv/__init__.mojo|output.extend(Span(field.data)[:length])|output.extend(Span(field.data)[:1])
+src/csv/__init__.mojo|    t[13] = 1|    t[13] = 0
+src/csv/__init__.mojo|        t[Int(b)] = 1|        t[Int(b)] = 0
+src/csv/__init__.mojo|self.has_escape = has_escape or escapechar != 0|self.has_escape = has_escape

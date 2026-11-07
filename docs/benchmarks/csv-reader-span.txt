@@ -1,0 +1,64 @@
+CSV Span API final receipt, Mojo 1.2.0 (2016d0cd), CPython 3.14.9.
+Input: 49999950 bytes / 714285 mixed quoted and unquoted records.
+CPU 7; three interleaved rounds; scope MemoryMax=4G, MemorySwapMax=0, timeout=120.
+Reproduce: MOJO=path/to/mojo scripts/benchmark.sh
+A is Mojo and B is CPython in each final consumer-mode comparison.
+Streaming consumers discard each record; owned consumers materialize all records.
+rows identical across 6 runs: 714285
+metric (median of 3)                                A              B       B/A
+parse MB/s: #                                 227.499        85.7855    0.377x
+parse seconds: #                             0.219781       0.582849    2.652x
+Mojo stream bytes 49999950 rows 714285
+rows: 714285
+parse seconds: 0.223351306
+parse MB/s: 223.86235789460753
+sizes Dialect 40 Reader 168 CsvField 24 OwnedField 32
+wall seconds: 0.27
+peak KB: 58504
+CPython stream bytes 49999950 rows 714285
+rows: 714285
+parse seconds: 0.570577711
+parse MB/s: 87.630394660
+wall seconds: 0.75
+peak KB: 303108
+rows identical across 6 runs: 714285
+metric (median of 3)                                A              B       B/A
+parse MB/s: #                                 102.086        66.7428    0.654x
+parse seconds: #                             0.489781       0.749144    1.530x
+Mojo owned bytes 49999950 rows 714285
+rows: 714285
+parse seconds: 0.492627912
+parse MB/s: 101.49638049741688
+sizes Dialect 40 Reader 168 CsvField 24 OwnedField 32
+wall seconds: 0.54
+peak KB: 241324
+CPython owned bytes 49999950 rows 714285
+rows: 714285
+parse seconds: 0.617828689
+parse MB/s: 80.928501526
+wall seconds: 0.97
+peak KB: 562888
+Same-consumption API before/after: A previous owned-field binary, B final read_all().
+Command: cap.sh taskset -c 7 bench-ab --rounds 3 --hash-key rows --metric parse -- .work/bench-owned ::: env BENCH_MODE=owned .work/benchmark/reader
+rows identical across 6 runs: 714285
+metric (median of 3)                                A              B       B/A
+parse MB/s: #                                 76.9644        112.075    1.456x
+parse seconds: #                              0.64965       0.446131    0.687x
+Before peak RSS (previous owned-field API): 449140 KB; final owned: 241324 KB.
+Final binary identity checked by rebuilding after mutation restoration:
+.work/benchmark/reader: OK
+Final source, harness, reference and binary SHA256:
+e027e6d28c5d3db16d101b4d35dad7a249cfc9fb2048a4529e7c243bfb65b730  src/csv/__init__.mojo
+b36fcedf955255beb4bbef4ee9961c3ac92c851811bfa13f92a9842924e5a509  tests/bench.mojo
+ea189839a6b647df7cb420da0323e5b18375850fbe17f1bf96d623475c6f19c8  tools/bench_ref.py
+18e3f6054740c4f76c27e038da1422973136a99dfd28cd601ca083b3301c482d  .work/benchmark/reader
+Physical source lines:
+  364 .work/owned-api.mojo
+  439 src/csv/__init__.mojo
+  803 total
+CPU:
+CPU(s):                                  16
+Model name:                              AMD Ryzen 7 7800X3D 8-Core Processor
+Load at final receipt assembly:
+4.02 6.42 8.84 3/2295 258707
+Earlier scanner variants and rejected vector-lane arm: csv-reader.txt.
