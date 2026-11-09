@@ -13,6 +13,29 @@ On 50 MB of mixed records (CPU 7, receipts in [docs/benchmarks](docs/benchmarks)
 reader streams at 227.50 MB/s against CPython 85.79 MB/s and `write_all` runs at
 468.2 MB/s against 97.1 MB/s.
 
+Install: `pixi workspace channel add https://conda.modular.com/max https://prefix.dev/amarbaro/amarbaro`, then `pixi add mojo-csv` (import `csv`). From source: `git clone https://github.com/amarbaro/mojo-csv`, then `mojo run -I mojo-csv/src app.mojo`.
+Toolchains: Mojo 1.2 stable, and the nightly 1.3.0.dev2026110805 in the weekly [mojo-libs](https://github.com/amarbaro/mojo-libs) matrix (36 libraries on stable, 35 on nightly).
+
+```mojo
+from csv import Reader, Dialect, write_all, OwnedField
+
+
+def main() raises:
+    var input = List[UInt8]()
+    for c in "alpha,\"beta,gamma\"\nnext,row\n".as_bytes():
+        input.append(c)
+    var reader = Reader(Dialect.excel(), Span(input))
+    var saved = List[List[OwnedField]]()
+    while reader.next():
+        var row = reader.row()
+        print("fields", len(row))
+        saved.append(row.to_list())
+    var output = write_all(saved, Dialect.excel())
+    if len(saved) != 2 or len(output) != len(input) + 2:
+        raise Error("quickstart failed")
+    print("rows", len(saved), "written bytes", len(output))
+```
+
 Install Mojo 1.2.0, then use `-I src` from this clone:
 
 ```sh
@@ -34,11 +57,10 @@ Row and field views expire at the next next() or reset(). Input must outlive
 the reader and all views and stay unchanged. The compiler accepts invalid
 retention: follow the [lifetime contract](docs/api.md) and copy results you keep.
 
-Controls are bytes; field limit is 131072 bytes. Python file/object APIs,
+**Limits:** controls are bytes; field limit is 131072 bytes. Python file/object APIs,
 Sniffer, DictReader/DictWriter and non-byte dialect controls are excluded.
 Error messages are library-specific.
 
-Tested with stable Mojo 1.2.0 and nightly recorded by scripts/nightly.sh.
 Run `MOJO=path/to/mojo scripts/ci.sh` for CPython goldens, an independent Mojo
 scanner, lifetime copies and compiling behavior mutants. Regenerate the committed
 oracle using CPython 3.14: `python3 -I tools/gen_vectors.py`.
