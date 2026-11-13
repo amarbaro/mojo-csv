@@ -1,16 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
+command -v uv >/dev/null || { echo 'FAIL setup: uv not installed'; exit 1; }
+uv python install 3.14 || { echo 'FAIL setup: python 3.14'; exit 1; }
 if [ -z "${MOJO:-}" ]; then
-  command -v uv >/dev/null || { echo 'FAIL setup: uv not installed'; exit 1; }
   uv sync -q || { echo 'FAIL setup: uv sync'; exit 1; }
   MOJO=.venv/bin/mojo
 fi
-if [ -x .venv/bin/python ]; then
-  PYTHON=.venv/bin/python
-else
-  PYTHON=python3
-fi
+# the oracle is Python 3.14 on every channel (pyproject pins it); MOJO= used to skip uv sync and fall back to python3
+PYTHON=$(uv python find 3.14) || { echo 'FAIL setup: python 3.14 not found'; exit 1; }
 "$MOJO" --version
 mkdir -p .work/t
 for t in tests/cases:.work/cases tests/api:.work/t/api examples/quickstart:.work/t/quickstart tests/fuzz_probe:.work/t/fuzz_probe tests/write_probe:.work/t/write_probe; do

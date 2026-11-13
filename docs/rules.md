@@ -29,3 +29,4 @@
 - `nightly.sh` carried a `$HOME` toolchain path and `benchmark.sh` a local tool: committed scripts take the toolchain from `MOJO` and use only coreutils, taskset and python.
 
 - A commit body and release draft said 1.35M reader fuzz cases; the runs summed to 840k (60k + 4x150k + 3x60k, then the 4x150k and 3x60k files were reused). Add counts from the run list, never from memory; amend before it is published.
+- ci.sh skipped `uv python install 3.14` when MOJO= was set (the matrix nightly cell), so the oracle fell back to the runner's Python 3.12, which words errors differently; red on GitHub only (mojo-libs #2/#3) -> the oracle interpreter is installed and pinned on every path through ci.sh, never a silent fallback; a repro must remove the pinned version (empty UV_PYTHON_INSTALL_DIR), not only shadow python3.
