@@ -1,0 +1,4 @@
+name = "mojo-csv"
+version = "0.1.2"
+description = "CSV reader/writer with CPython csv parity"
+tags = ["mojo", "csv", "parser"]
