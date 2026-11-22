@@ -4,6 +4,8 @@
 
 # mojo-csv
 
+> **Moved:** this library now lives in [amarbaro/mojo-libs](https://github.com/amarbaro/mojo-libs/tree/main/libs/csv). This repository is read-only; issues and pull requests go there.
+
 CSV reader and writer for Mojo byte buffers, with CPython 3.14 quoting rules.
 Unquoted fields view the input; quoted and escaped fields use retained row
 scratch. Row iteration allocates only when buffers grow. Invalid UTF-8 bytes
